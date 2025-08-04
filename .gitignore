@@ -49,3 +49,7 @@ build/
 
 # PDF files (keep if you want to exclude generated PDFs)
 *.pdf
+
+# Claude AI assistant files
+CLAUDE.md
+claude.md
