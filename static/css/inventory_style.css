@@ -335,12 +335,22 @@ body {
 .item-header {
     padding: 1.5rem 1.5rem 1rem;
     border-bottom: 1px solid var(--gray-100);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
 }
 
 .item-title {
     font-size: 1.125rem;
     font-weight: 600;
     margin-bottom: 0.5rem;
+    flex: 1;
+}
+
+.item-header-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
 }
 
 .item-code {

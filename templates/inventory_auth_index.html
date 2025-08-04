@@ -56,7 +56,12 @@
         <div class="item-card">
             <div class="item-header">
                 <h3 class="item-title">{{ item.name }}</h3>
-                <span class="item-code">{{ item.code }}</span>
+                <div class="item-header-right">
+                    <span class="status-badge status-{{ item.status }}">
+                        {{ item.status }}
+                    </span>
+                    <span class="item-code">{{ item.code }}</span>
+                </div>
             </div>
             
             <div class="item-body">
@@ -76,11 +81,6 @@
                     <div class="detail-row">
                         <i class="fas fa-cubes"></i>
                         <span>Quantity: {{ item.quantity }}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="status-badge status-{{ item.status }}">
-                            {{ item.status }}
-                        </span>
                     </div>
                     {% if item.created_by %}
                     <div class="detail-row">
