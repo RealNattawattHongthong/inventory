@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from authlib.integrations.flask_client import OAuth
 from datetime import datetime
+import pytz
 import qrcode
 from PIL import Image
 import os
@@ -16,7 +17,25 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
+# Set timezone
+TIMEZONE = pytz.timezone('Asia/Bangkok')  # GMT+7
+
+def to_local_time(utc_dt):
+    """Convert UTC datetime to local timezone"""
+    if utc_dt:
+        return pytz.utc.localize(utc_dt).astimezone(TIMEZONE)
+    return None
+
 app = Flask(__name__)
+
+# Add timezone filter for templates
+@app.template_filter('localtime')
+def localtime_filter(utc_dt):
+    """Template filter to convert UTC to local time"""
+    local_dt = to_local_time(utc_dt)
+    if local_dt:
+        return local_dt.strftime('%B %d, %Y at %I:%M %p GMT+7')
+    return ''
 
 # Database configuration - use PostgreSQL on Heroku, SQLite locally
 DATABASE_URL = os.environ.get('DATABASE_URL')
@@ -87,8 +106,8 @@ class Item(db.Model):
             'location': self.location,
             'quantity': self.quantity,
             'status': self.status,
-            'created_at': self.created_at.strftime('%Y-%m-%d %H:%M:%S'),
-            'updated_at': self.updated_at.strftime('%Y-%m-%d %H:%M:%S'),
+            'created_at': to_local_time(self.created_at).strftime('%Y-%m-%d %H:%M:%S GMT+7') if self.created_at else None,
+            'updated_at': to_local_time(self.updated_at).strftime('%Y-%m-%d %H:%M:%S GMT+7') if self.updated_at else None,
             'created_by': self.created_by.username if self.created_by else None
         }
 

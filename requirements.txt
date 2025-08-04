@@ -4,6 +4,7 @@ Flask-Login
 Authlib
 requests
 python-dotenv
+pytz
 Pillow
 qrcode
 reportlab

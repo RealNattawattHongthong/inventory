@@ -48,10 +48,10 @@
                         <dd>{{ item.quantity }}</dd>
                         
                         <dt>Created</dt>
-                        <dd>{{ item.created_at.strftime('%B %d, %Y at %I:%M %p') }}</dd>
+                        <dd>{{ item.created_at|localtime }}</dd>
                         
                         <dt>Last Updated</dt>
-                        <dd>{{ item.updated_at.strftime('%B %d, %Y at %I:%M %p') }}</dd>
+                        <dd>{{ item.updated_at|localtime }}</dd>
                         
                         {% if item.created_by %}
                         <dt>Added By</dt>
