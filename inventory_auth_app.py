@@ -210,6 +210,7 @@ def index():
     search = request.args.get('search', '')
     category = request.args.get('category', '')
     status = request.args.get('status', '')
+    location = request.args.get('location', '')
     
     query = Item.query
     
@@ -228,11 +229,16 @@ def index():
     if status:
         query = query.filter_by(status=status)
     
+    if location:
+        query = query.filter_by(location=location)
+    
     items = query.order_by(Item.created_at.desc()).all()
     categories = db.session.query(Item.category).distinct().all()
     categories = [c[0] for c in categories if c[0]]
     statuses = db.session.query(Item.status).distinct().all()
     statuses = [s[0] for s in statuses if s[0]]
+    locations = db.session.query(Item.location).distinct().all()
+    locations = [l[0] for l in locations if l[0]]
     
     return render_template('inventory_auth_index.html', 
                          items=items, 
@@ -240,7 +246,9 @@ def index():
                          categories=categories,
                          selected_category=category,
                          statuses=statuses,
-                         selected_status=status)
+                         selected_status=status,
+                         locations=locations,
+                         selected_location=location)
 
 @app.route('/item/<code>')
 def item_detail(code):
