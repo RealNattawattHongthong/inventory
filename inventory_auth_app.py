@@ -302,9 +302,9 @@ def api_item(code):
     item = Item.query.filter_by(code=code).first_or_404()
     return jsonify(item.to_dict())
 
-# Create tables
-with app.app_context():
-    db.create_all()
+# Create tables - commented out after initial setup
+# with app.app_context():
+#     db.create_all()
 
 if __name__ == '__main__':
     if not app.config['GITHUB_CLIENT_ID'] or not app.config['GITHUB_CLIENT_SECRET']:
