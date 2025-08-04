@@ -209,6 +209,7 @@ def logout():
 def index():
     search = request.args.get('search', '')
     category = request.args.get('category', '')
+    status = request.args.get('status', '')
     
     query = Item.query
     
@@ -224,15 +225,22 @@ def index():
     if category:
         query = query.filter_by(category=category)
     
+    if status:
+        query = query.filter_by(status=status)
+    
     items = query.order_by(Item.created_at.desc()).all()
     categories = db.session.query(Item.category).distinct().all()
     categories = [c[0] for c in categories if c[0]]
+    statuses = db.session.query(Item.status).distinct().all()
+    statuses = [s[0] for s in statuses if s[0]]
     
     return render_template('inventory_auth_index.html', 
                          items=items, 
                          search=search, 
                          categories=categories,
-                         selected_category=category)
+                         selected_category=category,
+                         statuses=statuses,
+                         selected_status=status)
 
 @app.route('/item/<code>')
 def item_detail(code):
