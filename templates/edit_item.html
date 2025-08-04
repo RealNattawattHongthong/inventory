@@ -73,6 +73,13 @@
                     <option value="in-use" {% if item.status == 'in-use' %}selected{% endif %}>In Use</option>
                     <option value="maintenance" {% if item.status == 'maintenance' %}selected{% endif %}>Maintenance</option>
                     <option value="retired" {% if item.status == 'retired' %}selected{% endif %}>Retired</option>
+                    <option value="pending" {% if item.status == 'pending' %}selected{% endif %}>Pending</option>
+                    <option value="damaged" {% if item.status == 'damaged' %}selected{% endif %}>Damaged</option>
+                    <option value="reserved" {% if item.status == 'reserved' %}selected{% endif %}>Reserved</option>
+                    <option value="lost" {% if item.status == 'lost' %}selected{% endif %}>Lost</option>
+                    <option value="ordered" {% if item.status == 'ordered' %}selected{% endif %}>Ordered</option>
+                    <option value="trash" {% if item.status == 'trash' %}selected{% endif %}>Trash</option>
+                    <option value="ran-out" {% if item.status == 'ran-out' %}selected{% endif %}>Ran Out</option>
                 </select>
             </div>
 
