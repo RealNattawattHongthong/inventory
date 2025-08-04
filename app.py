@@ -16,7 +16,7 @@ app = Flask(__name__)
 LOGO_SIZE = (80, 80)
 QR_SIZE = (200, 200)
 QR_VERSION = 1
-LOGO_FILE_NAME = 'github-logo.png'
+LOGO_FILE_NAME = '02.jpg'
 
 def generate_item_code():
     """Generate a random 6-character alphanumeric code for items."""

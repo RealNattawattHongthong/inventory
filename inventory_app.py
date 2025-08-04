@@ -70,7 +70,7 @@ def generate_qr_code_image(item_code, item_name):
     
     # Try to add logo if exists
     try:
-        logo_path = os.path.join(os.getcwd(), 'github-logo.png')
+        logo_path = os.path.join(os.getcwd(), '02.jpg')
         if os.path.exists(logo_path):
             logo = Image.open(logo_path)
             logo_size = (60, 60)

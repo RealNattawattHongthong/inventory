@@ -10,7 +10,7 @@ import string
 LOGO_SIZE = (80, 80)
 QR_SIZE = (80, 80)
 QR_VERSION = 1
-LOGO_FILE_NAME = 'github-logo.png'
+LOGO_FILE_NAME = '02.jpg'
 OUTPUT_PDF = 'QR_Codes.pdf'
 DEFAULT_COLUMN_SIZE = 8
 
