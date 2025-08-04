@@ -425,6 +425,41 @@ body {
     color: #374151;
 }
 
+.status-pending {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.status-damaged {
+    background-color: #fecaca;
+    color: #991b1b;
+}
+
+.status-reserved {
+    background-color: #e9d5ff;
+    color: #6b21a8;
+}
+
+.status-lost {
+    background-color: #fee2e2;
+    color: #7f1d1d;
+}
+
+.status-ordered {
+    background-color: #bfdbfe;
+    color: #1e3a8a;
+}
+
+.status-trash {
+    background-color: #d1d5db;
+    color: #1f2937;
+}
+
+.status-ran-out {
+    background-color: #fde68a;
+    color: #78350f;
+}
+
 .item-footer {
     padding: 1rem 1.5rem;
     background-color: var(--gray-50);
