@@ -325,6 +325,9 @@ body {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
 .item-card:hover {
@@ -365,6 +368,7 @@ body {
 
 .item-body {
     padding: 1.5rem;
+    flex: 1;
 }
 
 .item-description {
@@ -427,6 +431,9 @@ body {
     border-top: 1px solid var(--gray-100);
     display: flex;
     gap: 0.5rem;
+    margin-top: auto;
+    justify-content: center;
+    align-items: center;
 }
 
 /* Empty State */
