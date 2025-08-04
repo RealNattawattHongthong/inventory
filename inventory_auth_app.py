@@ -73,6 +73,9 @@ github = oauth.register(
     client_kwargs={'scope': 'user:email'},
 )
 
+# Whitelist of allowed GitHub usernames
+ALLOWED_USERS = ['RealNattawattHongthong']
+
 # Database Models
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -171,6 +174,11 @@ def authorize():
     token = github.authorize_access_token()
     resp = github.get('user', token=token)
     user_info = resp.json()
+    
+    # Check if user is allowed
+    if user_info['login'] not in ALLOWED_USERS:
+        flash(f"Sorry, access is restricted. Only authorized users can login.", 'error')
+        return redirect(url_for('index'))
     
     # Get user email
     email_resp = github.get('user/emails', token=token)
