@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Edit {{ item.name }} - Inventory Manager{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="breadcrumb">
+        <a href="/">Items</a>
+        <i class="fas fa-chevron-right"></i>
+        <a href="/item/{{ item.code }}">{{ item.name }}</a>
+        <i class="fas fa-chevron-right"></i>
+        <span>Edit</span>
+    </div>
+
+    <div class="form-card">
+        <h1>Edit Item</h1>
+        
+        <form method="POST" action="/edit/{{ item.code }}" class="item-form">
+            <div class="form-group">
+                <label for="name">Item Name *</label>
+                <input type="text" id="name" name="name" required 
+                       value="{{ item.name }}" placeholder="Enter item name">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Item Code</label>
+                    <input type="text" value="{{ item.code }}" disabled class="disabled-input">
+                    <small class="form-help">Item code cannot be changed</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <input type="text" id="category" name="category" 
+                           value="{{ item.category or '' }}"
+                           placeholder="e.g., Electronics, Furniture"
+                           list="category-list">
+                    <datalist id="category-list">
+                        <option value="Electronics">
+                        <option value="Furniture">
+                        <option value="Office Supplies">
+                        <option value="Tools">
+                        <option value="Other">
+                    </datalist>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" name="description" rows="3" 
+                          placeholder="Enter item description (optional)">{{ item.description or '' }}</textarea>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="location">Location</label>
+                    <input type="text" id="location" name="location" 
+                           value="{{ item.location or '' }}"
+                           placeholder="e.g., Office A - Desk 5">
+                </div>
+
+                <div class="form-group">
+                    <label for="quantity">Quantity</label>
+                    <input type="number" id="quantity" name="quantity" 
+                           min="0" value="{{ item.quantity }}" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="status">Status</label>
+                <select id="status" name="status" required>
+                    <option value="available" {% if item.status == 'available' %}selected{% endif %}>Available</option>
+                    <option value="in-use" {% if item.status == 'in-use' %}selected{% endif %}>In Use</option>
+                    <option value="maintenance" {% if item.status == 'maintenance' %}selected{% endif %}>Maintenance</option>
+                    <option value="retired" {% if item.status == 'retired' %}selected{% endif %}>Retired</option>
+                </select>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i>
+                    Save Changes
+                </button>
+                <a href="/item/{{ item.code }}" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

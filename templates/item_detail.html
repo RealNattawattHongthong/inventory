@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}{{ item.name }} - Inventory Manager{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="breadcrumb">
+        <a href="/">Items</a>
+        <i class="fas fa-chevron-right"></i>
+        <span>{{ item.name }}</span>
+    </div>
+
+    <div class="item-detail-card">
+        <div class="item-detail-header">
+            <div>
+                <h1>{{ item.name }}</h1>
+                <div class="item-meta">
+                    <span class="item-code-large">{{ item.code }}</span>
+                    <span class="status-badge status-{{ item.status }}">{{ item.status }}</span>
+                </div>
+            </div>
+            <div class="item-actions">
+                <a href="/edit/{{ item.code }}" class="btn btn-primary">
+                    <i class="fas fa-edit"></i>
+                    Edit
+                </a>
+                <button onclick="deleteItem('{{ item.code }}')" class="btn btn-danger">
+                    <i class="fas fa-trash"></i>
+                    Delete
+                </button>
+            </div>
+        </div>
+
+        <div class="item-detail-body">
+            <div class="detail-grid">
+                <div class="detail-section">
+                    <h3>Details</h3>
+                    <dl class="detail-list">
+                        <dt>Category</dt>
+                        <dd>{{ item.category or 'Uncategorized' }}</dd>
+                        
+                        <dt>Location</dt>
+                        <dd>{{ item.location or 'No location specified' }}</dd>
+                        
+                        <dt>Quantity</dt>
+                        <dd>{{ item.quantity }}</dd>
+                        
+                        <dt>Created</dt>
+                        <dd>{{ item.created_at.strftime('%B %d, %Y at %I:%M %p') }}</dd>
+                        
+                        <dt>Last Updated</dt>
+                        <dd>{{ item.updated_at.strftime('%B %d, %Y at %I:%M %p') }}</dd>
+                    </dl>
+                </div>
+
+                <div class="detail-section">
+                    <h3>QR Code</h3>
+                    <div class="qr-code-preview">
+                        <canvas id="qrcode"></canvas>
+                        <div class="qr-actions">
+                            <a href="/qr/{{ item.code }}" class="btn btn-outline" download>
+                                <i class="fas fa-download"></i>
+                                Download QR Code
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% if item.description %}
+            <div class="detail-section">
+                <h3>Description</h3>
+                <p class="description-text">{{ item.description }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+<script>
+    // Generate QR code
+    const canvas = document.getElementById('qrcode');
+    const itemUrl = window.location.origin + '/item/{{ item.code }}';
+    QRCode.toCanvas(canvas, itemUrl, {
+        width: 200,
+        margin: 2,
+        color: {
+            dark: '#000000',
+            light: '#ffffff'
+        }
+    });
+
+    function deleteItem(code) {
+        if (confirm('Are you sure you want to delete this item?')) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/delete/' + code;
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+</script>
+{% endblock %}

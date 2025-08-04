@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Add New Item - Inventory Manager{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="breadcrumb">
+        <a href="/">Items</a>
+        <i class="fas fa-chevron-right"></i>
+        <span>Add New Item</span>
+    </div>
+
+    <div class="form-card">
+        <h1>Add New Item</h1>
+        
+        {% if error %}
+        <div class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i>
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="POST" action="/add" class="item-form">
+            <div class="form-group">
+                <label for="name">Item Name *</label>
+                <input type="text" id="name" name="name" required 
+                       placeholder="Enter item name" autofocus>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="code">Item Code</label>
+                    <input type="text" id="code" name="code" 
+                           placeholder="Leave empty for auto-generated"
+                           pattern="[A-Z0-9]+" title="Only uppercase letters and numbers">
+                    <small class="form-help">If empty, a unique code will be generated</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <input type="text" id="category" name="category" 
+                           placeholder="e.g., Electronics, Furniture"
+                           list="category-list">
+                    <datalist id="category-list">
+                        <option value="Electronics">
+                        <option value="Furniture">
+                        <option value="Office Supplies">
+                        <option value="Tools">
+                        <option value="Other">
+                    </datalist>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" name="description" rows="3" 
+                          placeholder="Enter item description (optional)"></textarea>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="location">Location</label>
+                    <input type="text" id="location" name="location" 
+                           placeholder="e.g., Office A - Desk 5">
+                </div>
+
+                <div class="form-group">
+                    <label for="quantity">Quantity</label>
+                    <input type="number" id="quantity" name="quantity" 
+                           min="0" value="1" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="status">Status</label>
+                <select id="status" name="status" required>
+                    <option value="available">Available</option>
+                    <option value="in-use">In Use</option>
+                    <option value="maintenance">Maintenance</option>
+                    <option value="retired">Retired</option>
+                </select>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i>
+                    Save Item
+                </button>
+                <a href="/" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

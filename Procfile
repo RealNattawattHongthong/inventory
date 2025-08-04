@@ -1,0 +1,1 @@
+web: gunicorn inventory_auth_app:app
