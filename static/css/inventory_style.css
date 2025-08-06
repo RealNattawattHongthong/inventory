@@ -809,11 +809,20 @@ body {
     }
     
     .user-menu {
+        gap: 0.5rem;
+    }
+    
+    .user-menu .username {
         display: none;
     }
     
+    .user-menu .btn-sm {
+        padding: 0.5rem 0.75rem;
+        min-height: 44px;
+    }
+    
     .mobile-user-section {
-        display: block;
+        display: none;
     }
     
     /* Page Layout */
