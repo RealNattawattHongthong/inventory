@@ -36,4 +36,32 @@ document.addEventListener('DOMContentLoaded', function() {
             icon.classList.add('fa-moon');
         }
     }
+    
+    // Mobile menu toggle functionality
+    const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+    const navbarMenu = document.getElementById('navbarMenu');
+    
+    if (mobileMenuToggle && navbarMenu) {
+        mobileMenuToggle.addEventListener('click', function() {
+            navbarMenu.classList.toggle('active');
+            const icon = this.querySelector('i');
+            if (navbarMenu.classList.contains('active')) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            } else {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        });
+        
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!navbarMenu.contains(event.target) && !mobileMenuToggle.contains(event.target)) {
+                navbarMenu.classList.remove('active');
+                const icon = mobileMenuToggle.querySelector('i');
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        });
+    }
 });

@@ -81,9 +81,8 @@
                     Edit
                 </a>
                 <form method="POST" action="/delete/{{ item.code }}" style="display: inline-block;" onsubmit="return confirm('Are you sure you want to delete this item?');">
-                    <button type="submit" class="btn btn-sm btn-danger">
+                    <button type="submit" class="btn btn-sm btn-danger" title="Delete">
                         <i class="fas fa-trash"></i>
-                        Delete
                     </button>
                 </form>
             </div>
