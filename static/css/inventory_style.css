@@ -737,6 +737,32 @@ body {
     transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
+/* Mobile User Section (hidden on desktop) */
+.mobile-user-section {
+    display: none;
+}
+
+.mobile-user-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border-top: 1px solid var(--border-color);
+    margin-top: 0.5rem;
+}
+
+.mobile-user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid var(--gray-200);
+}
+
+.mobile-username {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     /* Navigation */
@@ -784,6 +810,10 @@ body {
     
     .user-menu {
         display: none;
+    }
+    
+    .mobile-user-section {
+        display: block;
     }
     
     /* Page Layout */
