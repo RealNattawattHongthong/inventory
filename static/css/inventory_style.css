@@ -500,6 +500,19 @@ body {
     align-items: center;
 }
 
+.item-footer form {
+    display: inline-flex;
+    margin: 0;
+}
+
+.item-footer .btn {
+    min-width: 44px;
+    min-height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
 /* Empty State */
 .empty-state {
     text-align: center;
