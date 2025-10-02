@@ -6,12 +6,20 @@
 <div class="container">
     <div class="page-header">
         <h1>Inventory Items</h1>
-        {% if current_user.is_authenticated %}
-        <a href="/add" class="btn btn-primary">
-            <i class="fas fa-plus"></i>
-            Add New Item
-        </a>
-        {% endif %}
+        <div class="header-actions">
+            {% if items %}
+            <a href="/qr/download/all" class="btn btn-secondary">
+                <i class="fas fa-download"></i>
+                Download All QR Codes
+            </a>
+            {% endif %}
+            {% if current_user.is_authenticated %}
+            <a href="/add" class="btn btn-primary">
+                <i class="fas fa-plus"></i>
+                Add New Item
+            </a>
+            {% endif %}
+        </div>
     </div>
 
     <div class="search-section">

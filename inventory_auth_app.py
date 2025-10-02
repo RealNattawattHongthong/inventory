@@ -5,13 +5,14 @@ from authlib.integrations.flask_client import OAuth
 from datetime import datetime
 import pytz
 import qrcode
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 import os
 import io
 import base64
 import string
 import random
 import json
+import zipfile
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -125,24 +126,24 @@ def generate_item_code():
         if not Item.query.filter_by(code=code).first():
             return code
 
-def generate_qr_code_image(item_code, item_name):
-    """Generate QR code for an item"""
+def generate_qr_code_image(item_code, item_name, with_label=False):
+    """Generate QR code for an item with optional label"""
     qr = qrcode.QRCode(
         version=1,
         error_correction=qrcode.constants.ERROR_CORRECT_H,
         box_size=10,
         border=4,
     )
-    
+
     # Create URL for item detail page
     base_url = request.host_url.rstrip('/')
     item_url = f"{base_url}/item/{item_code}"
-    
+
     qr.add_data(item_url)
     qr.make(fit=True)
-    
+
     qr_image = qr.make_image(fill_color="black", back_color="white").convert('RGB')
-    
+
     # Try to add logo if exists
     try:
         logo_path = os.path.join(os.getcwd(), '02.jpg')
@@ -150,15 +151,75 @@ def generate_qr_code_image(item_code, item_name):
             logo = Image.open(logo_path)
             logo_size = (60, 60)
             logo_resized = logo.resize(logo_size)
-            
+
             logo_x = (qr_image.size[0] - logo_resized.size[0]) // 2
             logo_y = (qr_image.size[1] - logo_resized.size[1]) // 2
-            
+
             qr_image.paste(logo_resized, (logo_x, logo_y))
     except Exception as e:
         print(f'Logo error: {e}')
-    
-    return qr_image
+
+    if not with_label:
+        return qr_image
+
+    # Create 3x5 cm image with QR code and label
+    # 3x5 cm at 300 DPI = 354x590 pixels
+    canvas_width = 354
+    canvas_height = 590
+
+    # Create canvas
+    canvas = Image.new('RGB', (canvas_width, canvas_height), 'white')
+
+    # Resize QR code to fit in the top portion (leave space for text)
+    qr_size = min(canvas_width - 40, canvas_height - 120)  # Leave margins and space for text
+    qr_resized = qr_image.resize((qr_size, qr_size), Image.Resampling.LANCZOS)
+
+    # Center QR code horizontally and place it in upper portion
+    qr_x = (canvas_width - qr_size) // 2
+    qr_y = 20
+    canvas.paste(qr_resized, (qr_x, qr_y))
+
+    # Add text labels
+    draw = ImageDraw.Draw(canvas)
+
+    # Try to use default font, fallback to built-in font
+    try:
+        font_large = ImageFont.truetype("Arial.ttf", 20)
+        font_small = ImageFont.truetype("Arial.ttf", 16)
+    except:
+        try:
+            font_large = ImageFont.load_default()
+            font_small = ImageFont.load_default()
+        except:
+            font_large = None
+            font_small = None
+
+    # Add item code
+    text_y = qr_y + qr_size + 20
+    code_text = f"Code: {item_code}"
+    if font_large:
+        bbox = draw.textbbox((0, 0), code_text, font=font_large)
+        text_width = bbox[2] - bbox[0]
+        text_x = (canvas_width - text_width) // 2
+        draw.text((text_x, text_y), code_text, fill='black', font=font_large)
+    else:
+        draw.text((20, text_y), code_text, fill='black')
+
+    # Add item name (wrap if too long)
+    text_y += 35
+    name_text = item_name
+    if len(name_text) > 30:
+        name_text = name_text[:27] + "..."
+
+    if font_small:
+        bbox = draw.textbbox((0, 0), name_text, font=font_small)
+        text_width = bbox[2] - bbox[0]
+        text_x = (canvas_width - text_width) // 2
+        draw.text((text_x, text_y), name_text, fill='black', font=font_small)
+    else:
+        draw.text((20, text_y), name_text, fill='black')
+
+    return canvas
 
 # Auth Routes
 @app.route('/login')
@@ -323,16 +384,50 @@ def delete_item(code):
 @app.route('/qr/<code>')
 def generate_qr(code):
     item = Item.query.filter_by(code=code).first_or_404()
-    
-    qr_image = generate_qr_code_image(item.code, item.name)
-    
+
+    qr_image = generate_qr_code_image(item.code, item.name, with_label=True)
+
     buffered = io.BytesIO()
-    qr_image.save(buffered, format="PNG")
+    qr_image.save(buffered, format="PNG", dpi=(300, 300))
     buffered.seek(0)
-    
-    return send_file(buffered, mimetype='image/png', 
+
+    return send_file(buffered, mimetype='image/png',
                      as_attachment=True,
                      download_name=f'qr_{item.code}.png')
+
+@app.route('/qr/download/all')
+def download_all_qr():
+    """Download all QR codes as a ZIP file"""
+    items = Item.query.all()
+
+    if not items:
+        return redirect(url_for('index'))
+
+    # Create zip file in memory
+    zip_buffer = io.BytesIO()
+
+    with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+        for item in items:
+            # Generate QR code with label
+            qr_image = generate_qr_code_image(item.code, item.name, with_label=True)
+
+            # Save QR code to buffer
+            img_buffer = io.BytesIO()
+            qr_image.save(img_buffer, format="PNG", dpi=(300, 300))
+            img_buffer.seek(0)
+
+            # Add to zip with filename
+            zip_file.writestr(f'qr_{item.code}_{item.name[:20]}.png', img_buffer.getvalue())
+
+    zip_buffer.seek(0)
+
+    from datetime import datetime
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+
+    return send_file(zip_buffer,
+                     mimetype='application/zip',
+                     as_attachment=True,
+                     download_name=f'qr_codes_{timestamp}.zip')
 
 # API Routes
 @app.route('/api/items')
