@@ -170,32 +170,37 @@ def generate_qr_code_image(item_code, item_name, with_label=False):
     # Create canvas
     canvas = Image.new('RGB', (canvas_width, canvas_height), 'white')
 
-    # Resize QR code to fit in the top portion (leave space for text)
-    qr_size = min(canvas_width - 40, canvas_height - 120)  # Leave margins and space for text
+    # Make QR code smaller to leave more space for larger text
+    qr_size = min(canvas_width - 80, 240)  # Smaller QR code (was canvas_height - 120)
     qr_resized = qr_image.resize((qr_size, qr_size), Image.Resampling.LANCZOS)
 
     # Center QR code horizontally and place it in upper portion
     qr_x = (canvas_width - qr_size) // 2
-    qr_y = 20
+    qr_y = 30
     canvas.paste(qr_resized, (qr_x, qr_y))
 
     # Add text labels
     draw = ImageDraw.Draw(canvas)
 
-    # Try to use default font, fallback to built-in font
+    # Much larger fonts for better readability
     try:
-        font_large = ImageFont.truetype("Arial.ttf", 20)
-        font_small = ImageFont.truetype("Arial.ttf", 16)
+        font_large = ImageFont.truetype("Arial.ttf", 32)  # Increased from 20
+        font_small = ImageFont.truetype("Arial.ttf", 24)  # Increased from 16
     except:
         try:
-            font_large = ImageFont.load_default()
-            font_small = ImageFont.load_default()
+            # Try system fonts on different platforms
+            font_large = ImageFont.truetype("/System/Library/Fonts/Arial.ttf", 32)
+            font_small = ImageFont.truetype("/System/Library/Fonts/Arial.ttf", 24)
         except:
-            font_large = None
-            font_small = None
+            try:
+                font_large = ImageFont.load_default()
+                font_small = ImageFont.load_default()
+            except:
+                font_large = None
+                font_small = None
 
-    # Add item code
-    text_y = qr_y + qr_size + 20
+    # Add item code with more space
+    text_y = qr_y + qr_size + 40  # More spacing
     code_text = f"Code: {item_code}"
     if font_large:
         bbox = draw.textbbox((0, 0), code_text, font=font_large)
@@ -205,11 +210,11 @@ def generate_qr_code_image(item_code, item_name, with_label=False):
     else:
         draw.text((20, text_y), code_text, fill='black')
 
-    # Add item name (wrap if too long)
-    text_y += 35
+    # Add item name with more space (wrap if too long)
+    text_y += 50  # More spacing between code and name
     name_text = item_name
-    if len(name_text) > 30:
-        name_text = name_text[:27] + "..."
+    if len(name_text) > 25:  # Shorter line length for larger text
+        name_text = name_text[:22] + "..."
 
     if font_small:
         bbox = draw.textbbox((0, 0), name_text, font=font_small)
