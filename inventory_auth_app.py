@@ -400,6 +400,135 @@ def generate_qr(code):
                      as_attachment=True,
                      download_name=f'qr_{item.code}.png')
 
+def generate_small_qr_with_border(item_code, item_name):
+    """Generate smaller QR code for A4 layout with border"""
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_H,
+        box_size=6,  # Smaller box size
+        border=2,    # Smaller border
+    )
+
+    # Create URL for item detail page
+    base_url = request.host_url.rstrip('/')
+    item_url = f"{base_url}/item/{item_code}"
+
+    qr.add_data(item_url)
+    qr.make(fit=True)
+
+    qr_image = qr.make_image(fill_color="black", back_color="white").convert('RGB')
+
+    # Create smaller canvas (2x2.5 cm at 300 DPI = 236x295 pixels)
+    canvas_width = 236
+    canvas_height = 295
+
+    # Create canvas with white background
+    canvas = Image.new('RGB', (canvas_width, canvas_height), 'white')
+
+    # Add border
+    draw = ImageDraw.Draw(canvas)
+    border_width = 3
+    draw.rectangle([0, 0, canvas_width-1, canvas_height-1],
+                   outline='black', width=border_width)
+
+    # Smaller QR code
+    qr_size = 140  # Fixed size for grid layout
+    qr_resized = qr_image.resize((qr_size, qr_size), Image.Resampling.LANCZOS)
+
+    # Center QR code horizontally
+    qr_x = (canvas_width - qr_size) // 2
+    qr_y = 15
+    canvas.paste(qr_resized, (qr_x, qr_y))
+
+    # Smaller fonts for compact layout
+    try:
+        font_code = ImageFont.truetype("/System/Library/Fonts/Arial.ttf", 16)
+        font_name = ImageFont.truetype("/System/Library/Fonts/Arial.ttf", 12)
+    except:
+        try:
+            font_code = ImageFont.truetype("Arial.ttf", 16)
+            font_name = ImageFont.truetype("Arial.ttf", 12)
+        except:
+            try:
+                font_code = ImageFont.load_default()
+                font_name = ImageFont.load_default()
+            except:
+                font_code = None
+                font_name = None
+
+    # Add item code
+    text_y = qr_y + qr_size + 10
+    code_text = f"Code: {item_code}"
+    if font_code:
+        bbox = draw.textbbox((0, 0), code_text, font=font_code)
+        text_width = bbox[2] - bbox[0]
+        text_x = (canvas_width - text_width) // 2
+        draw.text((text_x, text_y), code_text, fill='black', font=font_code)
+    else:
+        draw.text((10, text_y), code_text, fill='black')
+
+    # Add item name (shorter for small format)
+    text_y += 25
+    name_text = item_name
+    if len(name_text) > 20:
+        name_text = name_text[:17] + "..."
+
+    if font_name:
+        bbox = draw.textbbox((0, 0), name_text, font=font_name)
+        text_width = bbox[2] - bbox[0]
+        text_x = (canvas_width - text_width) // 2
+        draw.text((text_x, text_y), name_text, fill='black', font=font_name)
+    else:
+        draw.text((10, text_y), name_text, fill='black')
+
+    return canvas
+
+def generate_a4_qr_sheet(items):
+    """Generate A4 sheet with multiple QR codes in grid layout"""
+    # A4 dimensions at 300 DPI: 2480 x 3508 pixels
+    a4_width = 2480
+    a4_height = 3508
+
+    # Create A4 canvas
+    a4_canvas = Image.new('RGB', (a4_width, a4_height), 'white')
+
+    # Grid settings
+    cols = 8  # 8 columns
+    rows = 10  # 10 rows
+    margin_x = 60
+    margin_y = 80
+
+    # Calculate spacing
+    qr_width = 236
+    qr_height = 295
+    available_width = a4_width - (2 * margin_x)
+    available_height = a4_height - (2 * margin_y)
+    spacing_x = (available_width - (cols * qr_width)) // (cols - 1) if cols > 1 else 0
+    spacing_y = (available_height - (rows * qr_height)) // (rows - 1) if rows > 1 else 0
+
+    # Place QR codes in grid
+    item_index = 0
+    for row in range(rows):
+        for col in range(cols):
+            if item_index >= len(items):
+                break
+
+            item = items[item_index]
+            qr_small = generate_small_qr_with_border(item.code, item.name)
+
+            # Calculate position
+            x = margin_x + col * (qr_width + spacing_x)
+            y = margin_y + row * (qr_height + spacing_y)
+
+            # Paste QR code
+            a4_canvas.paste(qr_small, (x, y))
+            item_index += 1
+
+        if item_index >= len(items):
+            break
+
+    return a4_canvas
+
 @app.route('/qr/download/all')
 def download_all_qr():
     """Download all QR codes as a ZIP file"""
@@ -412,17 +541,28 @@ def download_all_qr():
     zip_buffer = io.BytesIO()
 
     with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+        # Individual QR codes (3x5 cm)
         for item in items:
-            # Generate QR code with label
             qr_image = generate_qr_code_image(item.code, item.name, with_label=True)
-
-            # Save QR code to buffer
             img_buffer = io.BytesIO()
             qr_image.save(img_buffer, format="PNG", dpi=(300, 300))
             img_buffer.seek(0)
+            zip_file.writestr(f'individual/qr_{item.code}_{item.name[:20]}.png', img_buffer.getvalue())
 
-            # Add to zip with filename
-            zip_file.writestr(f'qr_{item.code}_{item.name[:20]}.png', img_buffer.getvalue())
+        # A4 sheets with multiple QR codes
+        items_per_sheet = 80  # 8x10 grid
+        sheet_number = 1
+
+        for i in range(0, len(items), items_per_sheet):
+            sheet_items = items[i:i + items_per_sheet]
+            a4_sheet = generate_a4_qr_sheet(sheet_items)
+
+            sheet_buffer = io.BytesIO()
+            a4_sheet.save(sheet_buffer, format="PNG", dpi=(300, 300))
+            sheet_buffer.seek(0)
+
+            zip_file.writestr(f'a4_sheets/qr_sheet_{sheet_number:02d}.png', sheet_buffer.getvalue())
+            sheet_number += 1
 
     zip_buffer.seek(0)
 
