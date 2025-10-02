@@ -440,14 +440,14 @@ def generate_small_qr_with_border(item_code, item_name):
     qr_y = 15
     canvas.paste(qr_resized, (qr_x, qr_y))
 
-    # Smaller fonts for compact layout
+    # Much bigger fonts for better readability
     try:
-        font_code = ImageFont.truetype("/System/Library/Fonts/Arial.ttf", 16)
-        font_name = ImageFont.truetype("/System/Library/Fonts/Arial.ttf", 12)
+        font_code = ImageFont.truetype("/System/Library/Fonts/Arial.ttf", 28)  # Increased from 16
+        font_name = ImageFont.truetype("/System/Library/Fonts/Arial.ttf", 22)  # Increased from 12
     except:
         try:
-            font_code = ImageFont.truetype("Arial.ttf", 16)
-            font_name = ImageFont.truetype("Arial.ttf", 12)
+            font_code = ImageFont.truetype("Arial.ttf", 28)
+            font_name = ImageFont.truetype("Arial.ttf", 22)
         except:
             try:
                 font_code = ImageFont.load_default()
@@ -456,8 +456,8 @@ def generate_small_qr_with_border(item_code, item_name):
                 font_code = None
                 font_name = None
 
-    # Add item code
-    text_y = qr_y + qr_size + 10
+    # Add item code with more spacing for bigger text
+    text_y = qr_y + qr_size + 15
     code_text = f"Code: {item_code}"
     if font_code:
         bbox = draw.textbbox((0, 0), code_text, font=font_code)
@@ -467,11 +467,11 @@ def generate_small_qr_with_border(item_code, item_name):
     else:
         draw.text((10, text_y), code_text, fill='black')
 
-    # Add item name (shorter for small format)
-    text_y += 25
+    # Add item name with more spacing for bigger text
+    text_y += 35  # More spacing for larger font
     name_text = item_name
-    if len(name_text) > 20:
-        name_text = name_text[:17] + "..."
+    if len(name_text) > 15:  # Shorter for bigger text
+        name_text = name_text[:12] + "..."
 
     if font_name:
         bbox = draw.textbbox((0, 0), name_text, font=font_name)
